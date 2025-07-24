@@ -1,0 +1,170 @@
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  body, html {
+    height: 100%;
+    background: linear-gradient(to right, #E1EEBC, #67AE6E);
+  }
+  
+  body {
+    background: url('images/earth.jpg') no-repeat center center/cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .container {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    max-width: 450px;
+    width: 100%;
+  }
+
+  .logout-container {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 2rem;
+    width: 100%;
+  }
+  
+  .login-box h2 {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+  .desc {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #666;
+    font-size: 14px;
+  }
+  
+  .social-login button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .google-btn {
+    background-color: #4276c9;
+    margin-top: 10px;
+    color: #ffffff;
+    border: 1px solid #ccc;
+  }
+  
+  .apple-btn {
+    background-color: #000000;
+    color: #ffffff;
+  }
+  
+  .divider {
+    text-align: center;
+    margin: 20px 0;
+    color: #888;
+    font-size: 14px;
+  }
+  
+  form input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  
+  .remember {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+  
+  .remember label {
+    margin-left: 5px;
+    font-size: 14px;
+  }
+  
+  .login-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+  }
+
+  .sign-up-btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #da8c18;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+  }
+
+  .logout-btn {
+    width: 100%;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #922727;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+  }
+  
+  .login-btn:hover {
+    background-color: #216d25;
+  }
+
+  .sign-up-btn:hover {
+    background-color:#e3af62;
+  }
+
+  .google-btn:hover {
+    background-color:rgb(26, 55, 101);
+  }
+
+  .logout-btn:hover {
+    background-color:#964e4e;
+  }
+
+
+
+
+  .start-btn {
+    width: 130px;
+    height: 50px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 90px;
+    padding: 10px;
+    background-color: #5ca1a0;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+    align-items: center;
+  }

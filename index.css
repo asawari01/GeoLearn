@@ -1,0 +1,142 @@
+
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f0f4f8;
+    text-align: center;
+}
+
+header {
+    background:  #669543;
+    padding: 20px;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 50px;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    gap: 20px;
+}
+
+nav ul li {
+    display: inline;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+}
+
+.hero {
+    background: #669543;
+    color: white;
+    padding: 80px 20px;
+}
+
+.hero h2 {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.hero p {
+    font-size: 22px;
+    margin-bottom: 20px;
+}
+
+.hero button {
+    background: white;
+    color: #397a07;
+    border: none;
+    padding: 15px 30px;
+    font-size: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+.hero button:hover {
+    background: white;
+    color:  #669543;
+    border: none;
+  
+    font-size: 22px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+#signup {
+    padding: 50px 20px;
+}
+
+#signup button {
+    background: #669543;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+#signup button:hover {
+    background: #90C67C;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 22px;
+    cursor: pointer;
+    font-weight: bolder;
+
+}
+
+.carousel-container {
+overflow: hidden;
+white-space: nowrap;
+background: #ffffff;
+padding: 40px 0;
+}
+
+.carousel-track {
+display: inline-block;
+animation: scroll-left 30s linear infinite;
+}
+
+.feature-card {
+display: inline-block;
+width: 300px;
+margin: 0 20px;
+vertical-align: top;
+background: #e9f5f4;
+padding: 20px;
+border-radius: 16px;
+box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.feature-card h3 {
+margin-top: 0;
+color: #1e4d91;
+}
+
+.feature-card p {
+margin: 10px 0 0;
+color: #333;
+}
+
+@keyframes scroll-left {
+0% { transform: translateX(0); }
+100% { transform: translateX(-50%); }
+}

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoLearn - Explore India</title>
+    <link rel="shortcut icon" href="/images/favicon.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            background-color: beige;
+        }
+
+        /* Navigation Bar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #2C5F2D;
+            padding: 15px 20px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            height: 60px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* Fullscreen Map */
+        .map-container {
+            width: 100%;
+            height: calc(100vh - 100px);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #searchBar {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 20px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .search-container button {
+            padding: 8px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .search-container button:hover {
+            background-color: #388E3C;
+        }
+
+        .profile{
+            width: 55px;
+            border-radius: 40px;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">GeoLearn</div>
+        
+        <div class="profile">
+            <a href="profile.html" >
+                <img src="images/profile.jpg" alt="Profile" height="30" width="30">
+            </a>
+        </div>
+    </nav>
+
+    <div class="map-container">
+        <div id="map"></div>
+    </div>
+
+    <script>
+        // Initialize the map centered on India
+        var map = L.map('map', {
+            center: [23.5937, 82.9629],
+            zoom: 5,
+            minZoom: 5,
+            maxZoom: 9,
+            maxBounds: [
+                [5, 66],
+                [38, 100]
+            ]
+        });
+
+        // Base tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Load India's state boundaries (full country)
+        fetch('https://raw.githubusercontent.com/geohacker/india/master/state/india_state.geojson')
+            .then(response => response.json())
+            .then(data => {
+                // Manually add Telangana if it's missing
+                const hasTelangana = data.features.some(f => f.properties.NAME_1 === "Telangana");
+                if (!hasTelangana) {
+                    fetch('https://raw.githubusercontent.com/geohacker/india/master/state/india_state.geojson')
+                        .then(resp => resp.json())
+                        .then(telanganaGeo => {
+                            data.features.push(telanganaGeo);
+                            drawStates(data); // Once Telangana is added, draw all
+                        });
+                } else {
+                    drawStates(data); // Telangana already present, just draw
+                }
+            });
+
+        // Function to draw the state boundaries and apply style
+        function drawStates(geojson) {
+            L.geoJSON(geojson, {
+                style: function (feature) {
+                    return {
+                        fillColor: "#4e79a7", // State fill color
+                        weight: 2,  // Width of boundary
+                        opacity: 1,
+                        color: "white", // Boundary color
+                        fillOpacity: 0.5 // Transparency of fill
+                    };
+                },
+                onEachFeature: function (feature, layer) {
+                    layer.bindPopup(`<b>${feature.properties.NAME_1}</b>`);
+
+                    // Hover effect: change fill color on hover
+                    layer.on('mouseover', function () {
+                        this.setStyle({
+                            fillColor: "#ff6600",  // Change to orange on hover
+                            fillOpacity: 0.7       // Increase opacity on hover
+                        });
+                    });
+
+                    layer.on('mouseout', function () {
+                        this.setStyle({
+                            fillColor: "#4e79a7",  // Revert to original color
+                            fillOpacity: 0.5       // Revert opacity
+                        });
+                    });
+                }
+            }).addTo(map);
+        }
+
+        // Add clickable markers for each state
+        // Add clickable markers for each state
+        var states = [
+            { name: "Andhra Pradesh", coords: [15.9129, 79.7400] },
+            { name: "Arunachal Pradesh", coords: [27.0980, 93.5950] },
+            { name: "Assam", coords: [26.2006, 92.9376] },
+            { name: "Bihar", coords: [25.0961, 85.3131] },
+            { name: "Chhattisgarh", coords: [21.2787, 81.8661] },
+            { name: "Goa", coords: [15.2993, 74.1240] },
+            { name: "Gujarat", coords: [22.2587, 71.1924] },
+            { name: "Haryana", coords: [29.0588, 76.0856] },
+            { name: "Himachal Pradesh", coords: [32.0657, 77.3963] },
+            { name: "Jharkhand", coords: [23.6100, 85.2799] },
+            { name: "Karnataka", coords: [15.3173, 75.7138] },
+            { name: "Kerala", coords: [10.8505, 76.2711] },
+            { name: "Madhya Pradesh", coords: [23.4735, 77.9475] },
+            { name: "Maharashtra", coords: [19.7515, 75.7139] },
+            { name: "Manipur", coords: [24.7999, 93.9368] },
+            { name: "Meghalaya", coords: [25.4670, 91.3662] },
+            { name: "Mizoram", coords: [23.1645, 92.9376] },
+            { name: "Nagaland", coords: [26.1584, 94.5624] },
+            { name: "Odisha", coords: [20.9517, 85.0985] },
+            { name: "Punjab", coords: [31.1471, 75.3412] },
+            { name: "Rajasthan", coords: [27.0238, 74.2179] },
+            { name: "Sikkim", coords: [27.5330, 88.5122] },
+            { name: "Tamil Nadu", coords: [11.1271, 78.6569] },
+            { name: "Telangana", coords: [17.1232, 79.2088] },
+            { name: "Tripura", coords: [23.9408, 91.9882] },
+            { name: "Uttar Pradesh", coords: [26.8467, 80.9462] },
+            { name: "Uttarakhand", coords: [30.0668, 79.0193] },
+            { name: "West Bengal", coords: [22.9868, 87.8550] },
+            { name: "Andaman and Nicobar Islands", coords: [11.7401, 92.6586] },
+            { name: "Chandigarh", coords: [30.7333, 76.7794] },
+            { name: "Dadra and Nagar Haveli and Daman and Diu", coords: [20.1807, 73.0169] },
+            { name: "Lakshadweep", coords: [10.5625, 72.6417] },
+            { name: "Delhi", coords: [28.6139, 77.2090] },
+            { name: "Puducherry", coords: [11.9416, 79.8083] },
+            { name: "Jammu and Kashmir", coords: [33.7782, 76.5762] },
+            { name: "Ladakh", coords: [34.1526, 77.5771] }
+        ];
+
+
+        function goToStatePage(stateName) {
+            // Navigate to the state page with the state name as a query parameter
+            window.location.href = `state.html?state=${stateName}`;
+        
+        }
+
+        states.forEach(state => {
+            L.marker(state.coords).addTo(map)
+                .bindPopup(`<a href="#" onclick="goToStatePage('${state.name.toLowerCase()}')">${state.name}</a>`);
+        });
+
+        // Function to navigate to state page with query parameter
+        
+
+    </script>
+</body>
+
+</html>

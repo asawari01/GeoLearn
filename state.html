@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title id="state-title">State - GeoLearn</title>
+  <link rel="shortcut icon" href="/images/favicon.png" type="image/x-icon">
+
+  <!-- jQuery (optional if not used elsewhere) -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+    crossorigin="anonymous"></script>
+
+  <!-- Firebase Module Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDrNCnakTSSeAP0q3li6xlXugwXQW0ZRDg",
+      authDomain: "geolearn1.firebaseapp.com",
+      projectId: "geolearn1",
+      storageBucket: "geolearn1.appspot.com",
+      messagingSenderId: "226790797831",
+      appId: "1:226790797831:web:e3640bbf5400bdd6bb70a2",
+      measurementId: "G-QEEDNE0YE7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const state = urlParams.get("state");
+    console.log("State from URL:", state);
+
+    function capitalizeWords(str) {
+      return str.split(" ").map(word =>
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join(" ");
+    }
+
+    async function loadStateContent() {
+      const stateKey = state?.toLowerCase().replace(/\s+/g, '');
+      if (!stateKey) return;
+
+      const stateRef = ref(database, 'states/' + stateKey);
+      const snapshot = await get(stateRef);
+
+      if (snapshot.exists()) {
+        const stateData = snapshot.val();
+
+        document.getElementById("state-title").innerText = stateData.title || capitalizeWords(state);
+        document.getElementById("state-name").innerText = `Welcome to ${capitalizeWords(state)} 🌸`;
+        document.getElementById("state-video").src = stateData.videoUrl || "";
+        document.getElementById("state-info").innerText = stateData.info || "";
+
+        const cardsContainer = document.getElementById("state-cards");
+        cardsContainer.innerHTML = "";
+        (stateData.cards || []).forEach(fact => {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerText = fact;
+          cardsContainer.appendChild(card);
+        });
+
+        document.getElementById("quiz-link").onclick = () => {
+          const encoded = encodeURIComponent(state.toLowerCase());
+          window.location.href = `quiz1.html?state=${encoded}`;
+        };
+
+      } else {
+        document.getElementById("state-name").innerText = "State not found!";
+        document.getElementById("state-info").innerText = "Sorry, we couldn't find information about this state.";
+      }
+    }
+
+    loadStateContent();
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #bbe7ba;
+      color: #333;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      padding: 30px 20px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      color: #042e0e;
+      margin-bottom: 30px;
+    }
+    .video-section {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    iframe {
+      width: 100%;
+      max-width: 800px;
+      height: 450px;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    }
+    .info-section {
+      background-color: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      margin-bottom: 40px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .info-section p {
+      font-size: 18px;
+      line-height: 1.7;
+    }
+    .cards-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 40px;
+    }
+    .card {
+      background-color: #f0f0f0;
+      padding: 20px;
+      border-radius: 12px;
+      width: 300px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: 0.3s ease;
+    }
+    .card:hover {
+      background-color: #e3f7e3;
+      transform: scale(1.02);
+    }
+    .quiz-btn {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 50px;
+    }
+    .quiz-btn button {
+      background-color: #2C5F2D;
+      color: white;
+      padding: 14px 28px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .quiz-btn button:hover {
+      background-color: #21451f;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="state-name">Welcome to 🌸</h1>
+
+    <div class="video-section">
+      <iframe id="state-video" title="State Travel Video" allowfullscreen></iframe>
+    </div>
+
+    <div class="info-section">
+      <p id="state-info"></p>
+    </div>
+
+    <div class="cards-container" id="state-cards"></div>
+
+    <div class="quiz-btn">
+      <button id="quiz-link">🧠 Take the Quiz</button>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GeoLearn Quiz</title>
+  <link rel="shortcut icon" href="/images/favicon.png" type="image/x-icon">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #2C5F2D;
+    }
+
+    .quiz-container {
+      max-width: 600px;
+      margin: 30px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+
+    .question {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+
+    .options button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      background: #e6e6e6;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+
+    .options button:hover {
+      background: #d4edda;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #155724;
+    }
+
+    .next-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #2C5F2D;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .next-btn:hover {
+      background: #244a20;}
+
+    .home-btn{
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #4A7C59;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    }
+
+  .home-btn:hover {
+    background-color: #365a40;
+  }
+
+  .button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+
+  </style>
+</head>
+<body>
+
+  <h1>🌍 GeoLearn Quiz</h1>
+  <div class="quiz-container">
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="result" id="result"></div>
+    
+    <div class="button-group">
+      <button class="next-btn" id="nextBtn" onclick="loadNextQuestion()">Next</button>
+      <button class="home-btn" onclick="window.location.href='map.html'">🏠 Go to Home</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDrNCnakTSSeAP0q3li6xlXugwXQW0ZRDg",
+      authDomain: "geolearn1.firebaseapp.com",
+      projectId: "geolearn1",
+      storageBucket: "geolearn1.appspot.com",
+      messagingSenderId: "226790797831",
+      appId: "1:226790797831:web:e3640bbf5400bdd6bb70a2",
+      measurementId: "G-QEEDNE0YE7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const auth = getAuth(app);
+
+    function getStateFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("state")?.trim().toLowerCase().replace(/\s+/g, "");
+  }
+
+
+    let quiz = [];
+    let currentIndex = 0;
+    let score = 0;
+    let currentUser = null;
+    const state = getStateFromURL();
+
+
+    const questionDiv = document.getElementById("question");
+    const optionsDiv = document.getElementById("options");
+    const resultDiv = document.getElementById("result");
+    const nextBtn = document.getElementById("nextBtn");
+
+    function loadQuestion() {
+      resultDiv.innerText = "";
+      const current = quiz[currentIndex];
+      questionDiv.innerText = current.question;
+      optionsDiv.innerHTML = "";
+
+      current.options.forEach(option => {
+        const btn = document.createElement("button");
+        btn.innerText = option;
+        btn.onclick = () => checkAnswer(option);
+        optionsDiv.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected) {
+      const correct = quiz[currentIndex].answer;
+      if (selected === correct) {
+        resultDiv.innerText = "✅ Correct!";
+        score++;
+      } else {
+        resultDiv.innerText = `❌ Wrong! Correct answer: ${correct}`;
+      }
+      Array.from(optionsDiv.children).forEach(btn => btn.disabled = true);
+    }
+
+    async function loadNextQuestion() {
+      currentIndex++;
+      if (currentIndex < quiz.length) {
+        loadQuestion();
+      } else {
+        questionDiv.innerText = "";
+        optionsDiv.innerHTML = "";
+        resultDiv.innerHTML = `
+          <h2>Your Score: ${score} / ${quiz.length}</h2>
+          <p>🎉 Thanks for playing!</p>
+          <button class="next-btn" onclick="window.location.href='map.html'">Back to Home</button>
+        `;
+        nextBtn.style.display = "none";
+
+        if (currentUser) {
+  const userEmailKey = currentUser.email.replace(/\./g, "_");
+  const userRef = ref(database, `scores/${userEmailKey}`);
+
+  const snapshot = await get(userRef);
+  let prev = snapshot.exists() ? snapshot.val() : { totalScore: 0, states: {} };
+
+  // If score already exists for this state, don't update again
+  if (!prev.states?.[state]) {
+    let newTotal = (prev.totalScore || 0) + score;
+
+    await update(userRef, {
+      totalScore: newTotal,
+      [`states/${getStateFromURL()}`]: score
+    });
+  } else {
+    console.log("Score for this state already exists. Not updating.");
+  }
+}
+
+      }
+    }
+
+    nextBtn.addEventListener("click", loadNextQuestion);
+
+    function loadQuizFromFirebase() {
+      const cleanedState = state?.trim().toLowerCase().replace(/\s+/g, "");
+      const quizRef = ref(database, `quizzes/${cleanedState}`);
+      get(quizRef).then(snapshot => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          quiz = Array.isArray(data) ? data : Object.values(data);
+          loadQuestion();
+        } else {
+          quiz = [{
+            question: "Default Question: Capital of India?",
+            options: ["Mumbai", "Delhi", "Chennai", "Kolkata"],
+            answer: "Delhi"
+          }];
+          loadQuestion();
+        }
+      });
+    }
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        currentUser = user;
+        loadQuizFromFirebase();
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+</body>
+</html>

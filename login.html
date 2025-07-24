@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geolearn</title>
+  <link rel="shortcut icon" href="/images/favicon.png" type="image/x-icon">
+  <link rel="stylesheet" href="login.css" />
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+    crossorigin="anonymous"></script>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged} from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDrNCnakTSSeAP0q3li6xlXugwXQW0ZRDg",
+      authDomain: "geolearn1.firebaseapp.com",
+      projectId: "geolearn1",
+      storageBucket: "geolearn1.appspot.com",
+      messagingSenderId: "226790797831",
+      appId: "1:226790797831:web:e3640bbf5400bdd6bb70a2",
+      measurementId: "G-QEEDNE0YE7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const database = getDatabase(app);
+
+    let currentUser = null;
+
+    function writeUserData(user) {
+    set(ref(database, 'users/' + user.uid), {
+        email: user.email
+    })
+    .then(() => {
+        console.log("User data written to Realtime Database.");
+    })
+    .catch((error) => {
+        console.error("Error writing to database:", error);
+    });
+    }
+
+
+
+    window.addEventListener("DOMContentLoaded", () => {
+      // Sign-up logic
+      $("#sign-up-btn").click(function (e) {
+        e.preventDefault();
+        const email = $("#inp-email").val();
+        const password = $("#inp-password").val();
+
+        createUserWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            writeUserData(user);
+            alert("Sign-up successful! Welcome, " + user.email);
+          })
+          .catch((error) => {
+            alert("Error: " + error.message);
+          });
+      });
+
+      // Sign-in logic
+      $(".login-btn").click(function (e) {
+        e.preventDefault();
+        const email = $("#inp-email").val();
+        const password = $("#inp-password").val();
+
+        signInWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            const user = userCredential.user;
+            window.location.href = "map.html";
+            alert("Login successful! Welcome back, " + user.email);
+
+          })
+          .catch((error) => {
+            alert("Login Error: " + error.message);
+          });
+      });
+
+
+      //start page
+      $("#go-to-start").click(function (e) {
+  e.preventDefault();
+  window.location.href = "index.html";
+});
+
+      // Logout logic
+      $("#logout-btn").click(function (e) {
+        e.preventDefault();
+        signOut(auth)
+          .then(() => {
+            alert("Logged out successfully.");
+          })
+          .catch((error) => {
+            alert("Logout Error: " + error.message);
+          });
+      });
+
+      // Just log auth state, no DOM show/hide
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          currentUser = user;
+          console.log("User logged in: " + user.email);
+        } else {
+          console.log("User is signed out.");
+        }
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="login-box">
+      <h2 id="form-title">Login</h2>
+      <p class="desc" id="form-desc">Welcome back to Geolearn</p>
+
+      <form id="Sign-up-form">
+        <input type="email" id="inp-email" placeholder="Email" required />
+        <input type="password" id="inp-password" placeholder="Password" required />
+
+        <button class="login-btn">Sign in</button>
+        <button id="sign-up-btn" class="sign-up-btn">Create New Account</button>
+        
+
+        <hr />
+        <div class="logout-container" id="logout-form">
+          <button id="logout-btn" class="logout-btn">Log out</button>
+          <button id="go-to-start" class="start-btn">Go to Start Page</button>
+        </div>
+        <hr />
+      </form>
+    </div>
+  </div>
+</body>
+</html>
